@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "tsc -b && vite build",
-    "build:pages": "tsc -b && vite build",
+    "build:pages": "vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
     "types": "wrangler types",
