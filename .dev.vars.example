@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local development (.dev.vars is gitignored).
+# The value below is Cloudflare's "always passes" Turnstile test secret.
+# For production, set the real secret with: wrangler secret put TURNSTILE_SECRET
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA

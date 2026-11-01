@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "minervasharp-personal-site",
+  "account_id": "21232911d5ff54ed8670b22255d4fade",
+  "compatibility_date": "2026-10-30",
+  "main": "worker/index.ts",
+  "assets": {
+    // The Vite plugin auto-populates assets.directory from the client build.
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "send_email": [
+    {
+      "name": "CONTACT_EMAIL",
+      "destination_address": "minervasharp@outlook.com"
+    }
+  ],
+  "vars": {
+    "CONTACT_FROM": "contact@minervasharp.com",
+    "CONTACT_TO": "minervasharp@outlook.com",
+    "TURNSTILE_HOSTNAMES": "minervasharp.com,www.minervasharp.com,localhost,127.0.0.1"
+  },
+  "routes": [
+    {
+      "pattern": "minervasharp.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.minervasharp.com",
+      "custom_domain": true
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "traces": {
+      "enabled": true
+    }
+  }
+}
