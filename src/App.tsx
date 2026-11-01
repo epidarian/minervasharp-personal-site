@@ -117,7 +117,7 @@ export default function App() {
         </Section>
 
         {/* Skills + Projects */}
-        <Section id="skills" sceneIndex={3} eyebrow="SKILLS & PROJECTS" title="The toolkit" wide>
+        <Section id="skills" sceneIndex={3} eyebrow="SKILLS & PROJECTS" title="My Toolkit" wide>
           <div className="skills-grid">
             {skillGroups.map((group) => (
               <div key={group.label} className="skill-group">
@@ -153,7 +153,7 @@ export default function App() {
         </Section>
 
         {/* Education / Certifications */}
-        <Section id="education" sceneIndex={3} eyebrow="EDUCATION & CREDENTIALS" title="The paper trail" wide>
+        <Section id="education" sceneIndex={3} eyebrow="EDUCATION & CREDENTIALS" title="The Paper Trail" wide>
           <div className="edu-grid">
             <div>
               <h3 className="subhead">Education</h3>
@@ -191,7 +191,7 @@ export default function App() {
         </Section>
 
         {/* Contact */}
-        <Section id="contact" sceneIndex={4} eyebrow="CONTACT" title="Send a signal">
+        <Section id="contact" sceneIndex={4} eyebrow="CONTACT" title="Send Me Mail">
           <div className="contact-grid">
             <div className="contact-intro">
               <p>
