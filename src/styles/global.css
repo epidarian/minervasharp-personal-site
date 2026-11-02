@@ -1424,7 +1424,7 @@ html.plain-404 input {
   --export-size: calc(0.85rem * 1.6 + 1.4rem);
   position: fixed;
   top: 4.75rem;
-  right: clamp(1rem, 4vw, 2.5rem);
+  left: clamp(1rem, 4vw, 2.5rem);
   z-index: 20;
   display: flex;
   align-items: center;
@@ -1446,23 +1446,9 @@ html.plain-404 input {
   outline: 2px solid var(--accent-warm);
   outline-offset: 2px;
 }
-.resume-export-panel {
-  display: grid;
-  grid-template-columns: 0fr;
-  transition: grid-template-columns 0.28s ease;
-}
-.resume-export:hover .resume-export-panel,
-.resume-export:focus-visible .resume-export-panel {
-  grid-template-columns: 1fr;
-}
-.resume-export-clip {
-  overflow: hidden;
-  min-width: 0;
-}
 .resume-export-label {
   display: block;
-  width: max-content;
-  padding: 0 0.35rem 0 0.95rem;
+  padding: 0 0.95rem 0 0.2rem;
   font-family: var(--font-mono);
   font-size: 0.82rem;
   letter-spacing: 0.02em;
@@ -1638,8 +1624,7 @@ html.plain-404 input {
   .btn:hover {
     transform: none;
   }
-  .site-tray-panel,
-  .resume-export-panel {
+  .site-tray-panel {
     transition: none;
   }
 }

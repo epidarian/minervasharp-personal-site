@@ -85,11 +85,6 @@ export default function App() {
       <Nav activeId={activeId} />
 
       <Link ref={exportRef} className="resume-export" to="/resume">
-        <span className="resume-export-panel">
-          <span className="resume-export-clip">
-            <span className="resume-export-label">Export Resume</span>
-          </span>
-        </span>
         <span className="resume-export-mark">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -117,6 +112,7 @@ export default function App() {
             />
           </svg>
         </span>
+        <span className="resume-export-label">Export Resume</span>
       </Link>
 
       <main>
