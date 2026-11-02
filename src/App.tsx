@@ -4,6 +4,7 @@ import { Nav } from "./components/Nav";
 import { Section } from "./components/Section";
 import { Experience } from "./components/Experience";
 import { ContactForm } from "./components/ContactForm";
+import { ProjectCard } from "./components/ProjectCard";
 import { YearCounter } from "./components/YearCounter";
 import { Grain } from "./effects/Grain";
 import {
@@ -133,21 +134,15 @@ export default function App() {
             ))}
           </div>
 
-          <h3 className="subhead">Projects</h3>
+          <div className="projects-head">
+            <h3 className="subhead">Projects</h3>
+            <p className="projects-lead">
+              Tools I wrote and relevant projects
+            </p>
+          </div>
           <div className="projects">
             {projects.map((p) => (
-              <article key={p.name} className="project-card">
-                <h4>
-                  {p.href ? (
-                    <a href={p.href} target="_blank" rel="noreferrer noopener">
-                      {p.name}
-                    </a>
-                  ) : (
-                    p.name
-                  )}
-                </h4>
-                <p>{p.blurb}</p>
-              </article>
+              <ProjectCard key={p.name} project={p} />
             ))}
           </div>
         </Section>

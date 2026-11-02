@@ -26,6 +26,8 @@ export interface Project {
   name: string;
   blurb: string;
   href?: string;
+  stack?: string[];
+  points?: string[];
 }
 
 export interface SchoolEntry {
@@ -49,7 +51,7 @@ export const identity = {
 };
 
 export const summary = [
-  "I solve problems. Most of my work is keeping software online: microservices, cloud infrastructure, and security. I also make beautiful web pages in React and TypeScript.",
+  "I love solving problems. Most of my work is keeping software online: microservices, cloud infrastructure, and security. I also make beautiful web pages in React and TypeScript.",
   "I started my career in tech support and IT, and transitioned into DevOps and then software engineering. Security has been part of my work since I began working with the Department of Defense: hardening systems, automating compliance, and turning security requirements into engineering tasks.",
 ];
 
@@ -72,6 +74,7 @@ export const passes = [
   "hot beverages",
   "horror games",
   "pig-headishness",
+  "fakery",
   "bitter",
   "loud noises",
 ];
@@ -206,7 +209,7 @@ export const roles: Role[] = [
     org: "Art of Problem Solving",
     location: "San Diego, CA",
     period: "Jun 2024 – Sep 2026",
-    note: "title held: Senior DevOps Engineer, Head of SecOps",
+    note: "title held: Senior DevOps Engineer, Director of Application Security",
     bullets: [
       {
         text: "Built internal security and developer-workflow tooling in Go used across engineering for an education platform serving nearly one million students.",
@@ -359,13 +362,43 @@ export const roles: Role[] = [
 
 export const projects: Project[] = [
   {
+    name: "Ametie",
+    blurb:
+      "A cross-platform command-and-control service for machines that sit behind a firewall. The Go client checks in, runs the commands you queue, and can open a tunnel back when you need one.",
+    href: "https://github.com/epidarian/ametie",
+    stack: ["Go", "PHP", "MySQL"],
+    points: [
+      "A client, a CLI, and a PHP API",
+      "Windows, Linux, and macOS",
+      "One mailbox for command output and notes between nodes",
+    ],
+  },
+  {
+    name: "Winventory",
+    blurb:
+      "A Go command-line tool that keeps a local map of your clouds. Sync your clouds of choice automatically and then query from SQLite.",
+    href: "https://github.com/epidarian/winventory",
+    stack: ["Go", "SQLite"],
+    points: [
+      "Search, list, and show from the local database",
+      "A live command when you want more live detail",
+      "Install scripts for Linux, macOS, and Windows",
+    ],
+  },
+  {
     name: "Marston Technologies",
     blurb:
-      "Charitable initiative and independent development company that recruits neurodivergent software engineers and places them in roles suited to their strengths. Built its portfolio of React and TypeScript web applications.",
+      "A charitable initiative and independent development company. It recruits neurodivergent software engineers and places them in roles that fit how they work. I built its React and TypeScript web applications.",
+    stack: ["React", "TypeScript"],
+    points: [
+    ],
   },
   {
     name: "stocksweeper.net",
-    blurb: "Technical-signals tool for NYSE equities.",
+    blurb:
+      "A technical-signals tool for NYSE equities, shipped at LifeSoft.",
+    stack: ["PHP", "C#"],
+    points: ["Automated stock price alerts", "Technical analysis & market monitoring"],
   },
 ];
 
