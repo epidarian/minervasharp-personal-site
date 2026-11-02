@@ -1,5 +1,6 @@
 // Combined content from both resumes (Senior Software Engineer + DevSecOps).
-// No phone number, no visible email address: contact is LinkedIn + the form.
+// No phone number, no visible email address: contact is the form.
+// Profile links render in the About tray.
 
 export type Track = "software" | "platform" | "security";
 
@@ -49,6 +50,34 @@ export const identity = {
   location: "San Diego, California",
   linkedin: "https://www.linkedin.com/in/minerva-sharp",
 };
+
+export type ProfileId = "linkedin" | "github" | "facebook" | "gravatar" | "merit";
+
+export interface ProfileLink {
+  id: ProfileId;
+  name: string;
+  href: string;
+}
+
+export const profiles: ProfileLink[] = [
+  { id: "linkedin", name: "LinkedIn", href: identity.linkedin },
+  { id: "github", name: "GitHub", href: "https://github.com/epidarian" },
+  {
+    id: "facebook",
+    name: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61578470883004",
+  },
+  {
+    id: "gravatar",
+    name: "Gravatar",
+    href: "https://gravatar.com/meerkatbrieflye565f4a5c8",
+  },
+  {
+    id: "merit",
+    name: "Merit",
+    href: "https://meritpages.com/Minerva-Sharp/9303067",
+  },
+];
 
 export const summary = [
   "I love solving problems. Most of my work is keeping software online: microservices, cloud infrastructure, and security. I also make beautiful web pages in React and TypeScript.",

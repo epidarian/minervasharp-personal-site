@@ -5,6 +5,7 @@ import { Nav } from "./components/Nav";
 import { Section } from "./components/Section";
 import { Experience } from "./components/Experience";
 import { ProjectCard } from "./components/ProjectCard";
+import { SiteTray } from "./components/SiteTray";
 import { YearCounter } from "./components/YearCounter";
 import { Grain } from "./effects/Grain";
 import {
@@ -22,8 +23,24 @@ import {
 
 export default function App() {
   const [activeId, setActiveId] = useState("hero");
+  const exportRef = useRef<HTMLAnchorElement>(null);
 
   const ratios = useRef<Map<Element, number>>(new Map());
+
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>(".nav");
+    const button = exportRef.current;
+    if (!nav || !button) return;
+
+    const place = () => {
+      button.style.top = `${nav.getBoundingClientRect().bottom + 16}px`;
+    };
+
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (window.location.hash === "#contact") {
@@ -67,6 +84,41 @@ export default function App() {
 
       <Nav activeId={activeId} />
 
+      <Link ref={exportRef} className="resume-export" to="/resume">
+        <span className="resume-export-panel">
+          <span className="resume-export-clip">
+            <span className="resume-export-label">Export Resume</span>
+          </span>
+        </span>
+        <span className="resume-export-mark">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 2.5v6.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+            />
+            <path
+              d="M8.25 6.25 12 2.5 15.75 6.25"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M5 11.5v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      </Link>
+
       <main>
         {/* Hero */}
         <section id="hero" data-scene={0} className="section section-hero">
@@ -78,14 +130,7 @@ export default function App() {
               <Link className="btn btn-primary" to="/contact">
                 Get in touch
               </Link>
-              <a
-                className="btn btn-ghost"
-                href={identity.linkedin}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                LinkedIn
-              </a>
+              <SiteTray />
             </div>
           </div>
         </section>

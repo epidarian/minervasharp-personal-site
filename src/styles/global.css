@@ -384,6 +384,7 @@ main {
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.8rem;
   margin-top: 2rem;
 }
@@ -499,6 +500,104 @@ main {
 }
 .about-lists li::marker {
   color: var(--accent);
+}
+
+/* Link icon beside Get in touch. Hover slides a tray of profile buttons to the right. */
+.site-tray {
+  --tray-size: calc(0.85rem * 1.6 + 1.4rem);
+  display: flex;
+  align-items: center;
+  height: calc(var(--tray-size) + 2px);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: rgba(var(--shade), 0.5);
+  color: var(--ink);
+  backdrop-filter: blur(6px);
+}
+.site-tray.is-open {
+  border-color: rgba(255, 207, 122, 0.6);
+}
+.site-tray-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--tray-size);
+  height: var(--tray-size);
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.site-tray-toggle svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.site-tray-panel {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns 0.28s ease;
+}
+.site-tray.is-open .site-tray-panel {
+  grid-template-columns: 1fr;
+}
+.site-tray-clip {
+  overflow: hidden;
+  min-width: 0;
+}
+.site-tray-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: max-content;
+  padding-right: 0.4rem;
+}
+.site-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  color: #fff;
+}
+.site-btn:hover {
+  text-decoration: none;
+  filter: brightness(1.12);
+}
+.site-btn svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+.site-btn-linkedin {
+  background: #0a66c2;
+}
+.site-btn-github {
+  background: #f3f0e8;
+  color: #181717;
+}
+.site-btn-facebook {
+  background: #0866ff;
+}
+.site-btn-gravatar {
+  background: #1e8cbe;
+}
+.site-btn-merit {
+  background: transparent;
+  padding: 0;
+}
+.site-btn-merit img {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: block;
+}
+.site-tray-toggle:focus-visible,
+.site-btn:focus-visible {
+  outline: 2px solid var(--accent-warm);
+  outline-offset: 2px;
 }
 
 /* ---------- Year counter (split-flap) ---------- */
@@ -1320,6 +1419,210 @@ html.plain-404 input {
   }
 }
 
+/* ---------- Resume export ---------- */
+.resume-export {
+  --export-size: calc(0.85rem * 1.6 + 1.4rem);
+  position: fixed;
+  top: 4.75rem;
+  right: clamp(1rem, 4vw, 2.5rem);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  height: var(--export-size);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: rgba(var(--shade), 0.5);
+  color: var(--ink);
+  backdrop-filter: blur(6px);
+  text-decoration: none;
+}
+.resume-export:hover,
+.resume-export:focus-visible {
+  color: var(--accent-warm);
+  border-color: rgba(255, 207, 122, 0.6);
+  text-decoration: none;
+}
+.resume-export:focus-visible {
+  outline: 2px solid var(--accent-warm);
+  outline-offset: 2px;
+}
+.resume-export-panel {
+  display: grid;
+  grid-template-columns: 0fr;
+  transition: grid-template-columns 0.28s ease;
+}
+.resume-export:hover .resume-export-panel,
+.resume-export:focus-visible .resume-export-panel {
+  grid-template-columns: 1fr;
+}
+.resume-export-clip {
+  overflow: hidden;
+  min-width: 0;
+}
+.resume-export-label {
+  display: block;
+  width: max-content;
+  padding: 0 0.35rem 0 0.95rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.resume-export-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--export-size);
+  height: var(--export-size);
+  margin: -1px;
+}
+.resume-export-mark svg {
+  display: block;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.resume-page {
+  color-scheme: light;
+  min-height: 100vh;
+  background: #e4e4e4;
+  color: #161616;
+  padding: 1.25rem 1rem 3rem;
+  font-family: "Segoe UI", Calibri, Arial, sans-serif;
+}
+.resume-toolbar {
+  max-width: 8.5in;
+  margin: 0 auto 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.resume-toolbar a {
+  color: #1a1a1a;
+  font-size: 0.9rem;
+}
+.resume-print {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #222;
+  border-radius: 4px;
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+}
+.resume-sheet {
+  max-width: 8.5in;
+  margin: 0 auto;
+  background: #fff;
+  color: #111;
+  padding: 0.6in 0.7in;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  font-size: 10.5pt;
+  line-height: 1.35;
+}
+.resume-sheet h1 {
+  font-size: 22pt;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+.resume-sheet h2 {
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #222;
+  padding-bottom: 1px;
+  margin: 0.85rem 0 0.35rem;
+}
+.resume-sheet h3 {
+  font-size: 10.5pt;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.resume-sheet p {
+  margin: 0.15rem 0;
+}
+.resume-sheet a {
+  color: inherit;
+  text-decoration: none;
+}
+.resume-sheet a:hover {
+  text-decoration: underline;
+}
+.resume-headline {
+  margin: 0.15rem 0 0;
+  font-size: 11.5pt;
+}
+.resume-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.85rem;
+  margin-top: 0.2rem;
+}
+.resume-role {
+  margin-top: 0.45rem;
+  break-inside: avoid;
+}
+.resume-role-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+.resume-role-line span {
+  flex: none;
+  white-space: nowrap;
+}
+.resume-org {
+  margin: 0;
+}
+.resume-note {
+  margin: 0;
+  font-style: italic;
+}
+.resume-sheet ul {
+  margin: 0.15rem 0 0;
+  padding-left: 1.15rem;
+}
+.resume-sheet li {
+  margin: 0.08rem 0;
+}
+.resume-skills {
+  list-style: none;
+  padding-left: 0;
+}
+.resume-skills li {
+  margin: 0.12rem 0;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .resume-page {
+    background: #fff;
+    padding: 0;
+  }
+  .resume-toolbar {
+    display: none;
+  }
+  .resume-sheet {
+    max-width: none;
+    padding: 0;
+    box-shadow: none;
+  }
+  .resume-sheet a {
+    text-decoration: none;
+  }
+}
+@page {
+  size: letter;
+  margin: 0.5in 0.6in;
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -1334,5 +1637,9 @@ html.plain-404 input {
   }
   .btn:hover {
     transform: none;
+  }
+  .site-tray-panel,
+  .resume-export-panel {
+    transition: none;
   }
 }

@@ -15,6 +15,7 @@ import { BlogPost } from "./pages/BlogPost";
 import { Contact } from "./pages/Contact";
 import { Ops } from "./pages/Ops";
 import { PlainNotFound } from "./pages/PlainNotFound";
+import { Resume } from "./pages/Resume";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("root element not found");
@@ -29,6 +30,7 @@ createRoot(root).render(
         <Route path="/blog" element={<BlogIndex />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/resume" element={<Resume />} />
         <Route path="/ops" element={<Ops />} />
         <Route path="*" element={<PlainNotFound />} />
       </Routes>
