@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { allPosts } from "content-collections";
 import { Backdrop } from "../components/Backdrop";
@@ -18,17 +18,42 @@ function formatDate(value: string): string {
   return Number.isNaN(parsed.getTime()) ? value : dateFormat.format(parsed);
 }
 
+interface LivePost {
+  slug: string;
+  title: string;
+  date: string;
+  summary: string;
+}
+
 export function BlogIndex() {
   useEffect(() => {
     document.title = `Blog · ${identity.name}`;
   }, []);
 
-  const posts = [...allPosts].sort((a, b) => b.date.localeCompare(a.date));
+  const [live, setLive] = useState<LivePost[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/posts")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body: { posts?: LivePost[] } | null) => {
+        if (!cancelled && body?.posts) setLive(body.posts);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const bySlug = new Map<string, LivePost>();
+  for (const post of allPosts) bySlug.set(post.slug, post);
+  for (const post of live) bySlug.set(post.slug, post);
+  const posts = [...bySlug.values()].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <>
       <Backdrop />
-      <Nav onBlog />
+      <Nav page="blog" />
 
       <main>
         <section className="section">

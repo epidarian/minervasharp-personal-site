@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { allPosts } from "content-collections";
 import { Backdrop } from "../components/Backdrop";
@@ -18,9 +18,45 @@ function formatDate(value: string): string {
   return Number.isNaN(parsed.getTime()) ? value : dateFormat.format(parsed);
 }
 
+interface LivePost {
+  slug: string;
+  title: string;
+  date: string;
+  summary: string;
+  html: string;
+}
+
 export function BlogPost() {
   const { slug } = useParams();
-  const post = allPosts.find((p) => p.slug === slug);
+  const staticPost = allPosts.find((p) => p.slug === slug);
+  const [livePost, setLivePost] = useState<LivePost | null>(null);
+  const [checked, setChecked] = useState(Boolean(staticPost));
+
+  useEffect(() => {
+    if (!slug || staticPost) {
+      setChecked(true);
+      return;
+    }
+    let cancelled = false;
+    setChecked(false);
+    setLivePost(null);
+    fetch(`/api/posts/${encodeURIComponent(slug)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body: LivePost | null) => {
+        if (!cancelled) setLivePost(body);
+      })
+      .catch(() => {
+        if (!cancelled) setLivePost(null);
+      })
+      .finally(() => {
+        if (!cancelled) setChecked(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, staticPost]);
+
+  const post = staticPost ?? livePost;
 
   useEffect(() => {
     document.title = post
@@ -31,12 +67,14 @@ export function BlogPost() {
   return (
     <>
       <Backdrop />
-      <Nav onBlog />
+      <Nav page="blog" />
 
       <main>
         <section className="section">
           <div className="section-inner">
-            {post ? (
+            {!checked ? (
+              <p className="blog-empty">Loading…</p>
+            ) : post ? (
               <article className="prose">
                 <p className="eyebrow">// BLOG</p>
                 <h1 className="section-title">{post.title}</h1>

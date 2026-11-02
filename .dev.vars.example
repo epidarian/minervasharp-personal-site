@@ -2,3 +2,6 @@
 # The value below is Cloudflare's "always passes" Turnstile test secret.
 # For production, set the real secret with: wrangler secret put TURNSTILE_SECRET
 TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+# Ops gate. Set the real value locally, and in production with:
+# npx wrangler secret put OPS_PASSWORD
+OPS_PASSWORD=

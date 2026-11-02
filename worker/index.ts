@@ -1,5 +1,11 @@
 /// <reference path="../worker-configuration.d.ts" />
 
+import { handleOpsApi, handlePostsApi } from "./api";
+import { insertContactMessage } from "./db";
+import { escapeHtml, json } from "./http";
+import { plainNotFound } from "./not-found";
+import { sessionIsValid } from "./session";
+
 interface ContactPayload {
   name?: unknown;
   email?: unknown;
@@ -22,27 +28,8 @@ const MAX_TOKEN = 2048;
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-    },
-  });
-}
-
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
-}
-
-function escapeHtml(input: string): string {
-  return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
 
 // Turnstile dummy keys for local/testing are prefixed 1x/2x/3x. They do not
@@ -147,6 +134,12 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     return json({ ok: false, error: "verification_failed" }, 403);
   }
 
+  try {
+    await insertContactMessage(env.DB, name, email, message);
+  } catch (error) {
+    console.error("contact store failed", error);
+  }
+
   const subject = `Portfolio contact from ${name}`;
   const text = [
     `Name: ${name}`,
@@ -191,12 +184,61 @@ export default {
       return handleContact(request, env);
     }
 
+    const postsResponse = await handlePostsApi(request, env, url);
+    if (postsResponse) return postsResponse;
+
+    const opsResponse = await handleOpsApi(request, env, url);
+    if (opsResponse) return opsResponse;
+
     if (url.pathname.startsWith("/api/")) {
       return json({ ok: false, error: "not_found" }, 404);
     }
 
-    // Non-API requests are normally served by Static Assets before reaching
-    // the Worker. This fallback keeps behavior sane if one slips through.
-    return env.ASSETS.fetch(request);
+    if (!wantsDocument(request) || hasFileExtension(url.pathname)) {
+      return env.ASSETS.fetch(request);
+    }
+
+    if (isOpsPath(url.pathname)) {
+      const authed = await sessionIsValid(request.headers.get("cookie"), env.OPS_PASSWORD);
+      if (!authed) return plainNotFound(url.pathname, request.method);
+      if (url.pathname !== "/ops") {
+        return Response.redirect(new URL("/ops", url).href, 308);
+      }
+      return env.ASSETS.fetch(request);
+    }
+
+    if (isAppRoute(url.pathname)) {
+      return env.ASSETS.fetch(request);
+    }
+
+    return plainNotFound(url.pathname, request.method);
   },
 } satisfies ExportedHandler<Env>;
+
+function wantsDocument(request: Request): boolean {
+  if (request.method !== "GET" && request.method !== "HEAD") return false;
+  const accept = request.headers.get("accept") ?? "";
+  return accept.includes("text/html");
+}
+
+function hasFileExtension(pathname: string): boolean {
+  const leaf = pathname.slice(pathname.lastIndexOf("/") + 1);
+  return leaf.includes(".");
+}
+
+function isOpsPath(pathname: string): boolean {
+  return pathname === "/ops" || pathname === "/ops/";
+}
+
+function isAppRoute(pathname: string): boolean {
+  if (
+    pathname === "/" ||
+    pathname === "/blog" ||
+    pathname === "/blog/" ||
+    pathname === "/contact" ||
+    pathname === "/contact/"
+  ) {
+    return true;
+  }
+  return /^\/blog\/[^/]+\/?$/.test(pathname);
+}

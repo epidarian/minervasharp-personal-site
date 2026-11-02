@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 import { Backdrop } from "./components/Backdrop";
 import { Nav } from "./components/Nav";
 import { Section } from "./components/Section";
 import { Experience } from "./components/Experience";
-import { ContactForm } from "./components/ContactForm";
 import { ProjectCard } from "./components/ProjectCard";
 import { YearCounter } from "./components/YearCounter";
 import { Grain } from "./effects/Grain";
@@ -24,6 +24,12 @@ export default function App() {
   const [activeId, setActiveId] = useState("hero");
 
   const ratios = useRef<Map<Element, number>>(new Map());
+
+  useEffect(() => {
+    if (window.location.hash === "#contact") {
+      window.location.replace("/contact");
+    }
+  }, []);
 
   useEffect(() => {
     const sections = Array.from(
@@ -69,9 +75,9 @@ export default function App() {
             <h1 className="hero-name">{identity.name}</h1>
             <p className="hero-title">{identity.title}</p>
             <div className="hero-actions">
-              <a className="btn btn-primary" href="#contact">
+              <Link className="btn btn-primary" to="/contact">
                 Get in touch
-              </a>
+              </Link>
               <a
                 className="btn btn-ghost"
                 href={identity.linkedin}
@@ -182,29 +188,6 @@ export default function App() {
                 ))}
               </ul>
             </div>
-          </div>
-        </Section>
-
-        {/* Contact */}
-        <Section id="contact" sceneIndex={4} eyebrow="CONTACT" title="Send Me Mail">
-          <div className="contact-grid">
-            <div className="contact-intro">
-              <p>
-                Messages from this form go to my inbox.
-              </p>
-              <p>
-                You can also find me on{" "}
-                <a
-                  href={identity.linkedin}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  LinkedIn
-                </a>
-                .
-              </p>
-            </div>
-            <ContactForm />
           </div>
         </Section>
 

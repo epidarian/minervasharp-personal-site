@@ -12,6 +12,9 @@ import "./styles/global.css";
 import App from "./App";
 import { BlogIndex } from "./pages/BlogIndex";
 import { BlogPost } from "./pages/BlogPost";
+import { Contact } from "./pages/Contact";
+import { Ops } from "./pages/Ops";
+import { PlainNotFound } from "./pages/PlainNotFound";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("root element not found");
@@ -25,6 +28,9 @@ createRoot(root).render(
         <Route path="/" element={<App />} />
         <Route path="/blog" element={<BlogIndex />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/ops" element={<Ops />} />
+        <Route path="*" element={<PlainNotFound />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

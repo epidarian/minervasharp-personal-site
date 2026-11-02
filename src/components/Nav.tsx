@@ -6,60 +6,83 @@ export interface NavLink {
   label: string;
 }
 
-const links: NavLink[] = [
+// Anchors into the single-page home. Contact is no longer here; it is its own
+// page in the right-hand group.
+const sections: NavLink[] = [
   { id: "about", label: "About" },
   { id: "experience", label: "Experience" },
   { id: "skills", label: "Skills" },
   { id: "education", label: "Education" },
-  { id: "contact", label: "Contact" },
 ];
+
+export type NavPage = "home" | "blog" | "contact" | "ops";
 
 export interface NavProps {
   activeId?: string;
-  // When true, the nav renders on a blog route: the mark links home, section
-  // links point at `/#id`, and the Blog link is marked active.
-  onBlog?: boolean;
+  page?: NavPage;
 }
 
-export function Nav({ activeId, onBlog = false }: NavProps) {
-  const sectionHref = (id: string) =>
-    onBlog ? `${import.meta.env.BASE_URL}#${id}` : `#${id}`;
+export function Nav({ activeId, page = "home" }: NavProps) {
+  const isHome = page === "home";
+  const sectionHref = (id: string) => (isHome ? `#${id}` : `/#${id}`);
+
+  const mark = (
+    <>
+      <span className="nav-prompt" aria-hidden="true">$ </span>
+      {identity.name}
+      <span className="nav-cursor" aria-hidden="true">_</span>
+    </>
+  );
 
   return (
     <header className="nav">
-      {onBlog ? (
-        <Link className="nav-mark" to="/">
-          <span className="nav-prompt" aria-hidden="true">$ </span>
-          {identity.name}
-          <span className="nav-cursor" aria-hidden="true">_</span>
-        </Link>
-      ) : (
+      {isHome ? (
         <a className="nav-mark" href="#hero">
-          <span className="nav-prompt" aria-hidden="true">$ </span>
-          {identity.name}
-          <span className="nav-cursor" aria-hidden="true">_</span>
+          {mark}
         </a>
+      ) : (
+        <Link className="nav-mark" to="/">
+          {mark}
+        </Link>
       )}
-      <nav aria-label="Sections">
+
+      <nav className="nav-sections" aria-label="Sections">
         <ul>
-          {links.map((l) => (
-            <li key={l.id}>
-              <a
-                href={sectionHref(l.id)}
-                className={!onBlog && activeId === l.id ? "is-active" : undefined}
-                aria-current={!onBlog && activeId === l.id ? "true" : undefined}
-              >
-                {l.label}
-              </a>
-            </li>
-          ))}
+          {sections.map((l) => {
+            const active = isHome && activeId === l.id;
+            return (
+              <li key={l.id}>
+                <a
+                  href={sectionHref(l.id)}
+                  className={active ? "is-active" : undefined}
+                  aria-current={active ? "true" : undefined}
+                >
+                  {l.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <nav className="nav-pages" aria-label="Pages">
+        <ul>
           <li>
             <Link
               to="/blog"
-              className={onBlog ? "is-active" : undefined}
-              aria-current={onBlog ? "true" : undefined}
+              className={page === "blog" ? "is-active" : undefined}
+              aria-current={page === "blog" ? "true" : undefined}
             >
               Blog
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/contact"
+              className={page === "contact" ? "is-active" : undefined}
+              aria-current={page === "contact" ? "true" : undefined}
+            >
+              Contact
             </Link>
           </li>
         </ul>
