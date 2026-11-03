@@ -2,7 +2,7 @@
 
 import { handleOpsApi, handlePostsApi } from "./api";
 import { insertContactMessage } from "./db";
-import { escapeHtml, json } from "./http";
+import { json } from "./http";
 import { plainNotFound } from "./not-found";
 import { sessionIsValid } from "./session";
 
@@ -30,6 +30,16 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function contactAlreadyUsed(request: Request): boolean {
+  const header = request.headers.get("cookie") ?? "";
+  return header.split(";").some((part) => part.trim() === "contact_used=1");
+}
+
+function contactUsedCookie(request: Request): string {
+  const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
+  return `contact_used=1; Max-Age=600; Path=/; SameSite=Lax${secure}`;
 }
 
 // Turnstile dummy keys for local/testing are prefixed 1x/2x/3x. They do not
@@ -98,6 +108,10 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     return json({ ok: true });
   }
 
+  if (contactAlreadyUsed(request)) {
+    return json({ ok: false, error: "already_sent" }, 429);
+  }
+
   const name = asString(payload.name);
   const email = asString(payload.email);
   const message = asString(payload.message);
@@ -138,42 +152,10 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     await insertContactMessage(env.DB, name, email, message);
   } catch (error) {
     console.error("contact store failed", error);
+    return json({ ok: false, error: "store_failed" }, 502);
   }
 
-  const subject = `Portfolio contact from ${name}`;
-  const text = [
-    `Name: ${name}`,
-    `Email: ${email}`,
-    "",
-    message,
-  ].join("\n");
-  const html = `
-    <div style="font-family:system-ui,sans-serif;line-height:1.5">
-      <h2 style="margin:0 0 .5rem">New message from minervasharp.com</h2>
-      <p style="margin:0"><strong>Name:</strong> ${escapeHtml(name)}</p>
-      <p style="margin:0 0 1rem"><strong>Email:</strong> ${escapeHtml(email)}</p>
-      <p style="white-space:pre-wrap;margin:0">${escapeHtml(message)}</p>
-    </div>`;
-
-  try {
-    await env.CONTACT_EMAIL.send({
-      to: env.CONTACT_TO,
-      from: { email: env.CONTACT_FROM, name: "minervasharp.com" },
-      replyTo: { email, name },
-      subject,
-      text,
-      html,
-    });
-  } catch (error) {
-    const code =
-      error && typeof error === "object" && "code" in error
-        ? String((error as { code: unknown }).code)
-        : "unknown";
-    console.error("contact send failed", code, error);
-    return json({ ok: false, error: "send_failed" }, 502);
-  }
-
-  return json({ ok: true });
+  return json({ ok: true }, 200, { "set-cookie": contactUsedCookie(request) });
 }
 
 export default {

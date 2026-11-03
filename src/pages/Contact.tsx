@@ -22,7 +22,7 @@ export function Contact() {
             <h1 className="section-title">Send Me Mail</h1>
             <div className="contact-grid">
               <div className="contact-intro">
-                <p>Messages from this form go to my inbox.</p>
+                <p>Messages from this form are saved.</p>
                 <p>
                   You can also find me on{" "}
                   <a

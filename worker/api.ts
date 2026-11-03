@@ -1,4 +1,13 @@
-import { deletePost, getPost, listContactMessages, listPosts, savePost } from "./db";
+import {
+  deleteAllContactMessages,
+  deleteContactMessage,
+  deleteContactMessages,
+  deletePost,
+  getPost,
+  listContactMessages,
+  listPosts,
+  savePost,
+} from "./db";
 import { json } from "./http";
 import { plainNotFound } from "./not-found";
 import type { PostDocument } from "./markdown";
@@ -120,6 +129,45 @@ export async function handleOpsApi(request: Request, env: Env, url: URL): Promis
     if (denied) return denied;
     const messages = await listContactMessages(env.DB);
     return json({ messages });
+  }
+
+  if (url.pathname === "/api/ops/messages" && request.method === "DELETE") {
+    const denied = await requireSession(request, env);
+    if (denied) return denied;
+    await deleteAllContactMessages(env.DB);
+    return json({ ok: true });
+  }
+
+  if (url.pathname === "/api/ops/messages" && request.method === "POST") {
+    const denied = await requireSession(request, env);
+    if (denied) return denied;
+    const body = await readJson(request);
+    if (body instanceof Response) return body;
+    const raw =
+      body && typeof body === "object" && "ids" in body
+        ? (body as { ids: unknown }).ids
+        : null;
+    if (!Array.isArray(raw) || raw.length === 0 || raw.length > 200) {
+      return json({ ok: false, error: "invalid_id" }, 400);
+    }
+    const ids: number[] = [];
+    for (const value of raw) {
+      if (typeof value !== "number" || !Number.isInteger(value) || value < 1) {
+        return json({ ok: false, error: "invalid_id" }, 400);
+      }
+      ids.push(value);
+    }
+    await deleteContactMessages(env.DB, ids);
+    return json({ ok: true });
+  }
+
+  if (url.pathname.startsWith("/api/ops/messages/") && request.method === "DELETE") {
+    const denied = await requireSession(request, env);
+    if (denied) return denied;
+    const raw = url.pathname.slice("/api/ops/messages/".length);
+    if (!/^[1-9]\d*$/.test(raw)) return json({ ok: false, error: "invalid_id" }, 400);
+    await deleteContactMessage(env.DB, Number(raw));
+    return json({ ok: true });
   }
 
   if (url.pathname === "/api/ops/posts" && request.method === "GET") {

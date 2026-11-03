@@ -30,6 +30,22 @@ export async function insertContactMessage(
     .run();
 }
 
+export async function deleteContactMessage(db: D1Database, id: number): Promise<void> {
+  await db.prepare("DELETE FROM contact_messages WHERE id = ?").bind(id).run();
+}
+
+export async function deleteContactMessages(db: D1Database, ids: number[]): Promise<void> {
+  for (let index = 0; index < ids.length; index += 50) {
+    const chunk = ids.slice(index, index + 50);
+    const placeholders = chunk.map(() => "?").join(", ");
+    await db.prepare(`DELETE FROM contact_messages WHERE id IN (${placeholders})`).bind(...chunk).run();
+  }
+}
+
+export async function deleteAllContactMessages(db: D1Database): Promise<void> {
+  await db.prepare("DELETE FROM contact_messages").run();
+}
+
 export async function listContactMessages(db: D1Database): Promise<ContactMessage[]> {
   const result = await db
     .prepare(

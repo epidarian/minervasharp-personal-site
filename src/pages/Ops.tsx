@@ -57,6 +57,7 @@ export function Ops() {
   const [phase, setPhase] = useState<"check" | "ops">("check");
   const [files, setFiles] = useState<StoredFile[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
   const [slug, setSlug] = useState("");
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(todayIso());
@@ -88,7 +89,12 @@ export function Ops() {
     const postBody = (await postRes.json()) as { posts?: StoredFile[] };
     const messageBody = (await messageRes.json()) as { messages?: ContactMessage[] };
     setFiles(postBody.posts ?? []);
-    setMessages(messageBody.messages ?? []);
+    const nextMessages = messageBody.messages ?? [];
+    setMessages(nextMessages);
+    setSelected((current) => {
+      const ids = new Set(nextMessages.map((message) => message.id));
+      return new Set([...current].filter((id) => ids.has(id)));
+    });
     setPhase("ops");
   }
 
@@ -180,6 +186,81 @@ export function Ops() {
       if (slug.replace(/\.md$/i, "") === fileSlug) {
         resetForm();
       }
+      await loadOps();
+    } catch {
+      setNotice("Network error.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function toggleMessage(id: number) {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function onDeleteMessage(id: number) {
+    await deleteMessages([id], "That message was not deleted.");
+  }
+
+  async function onDeleteSelected() {
+    if (selected.size === 0) return;
+    await deleteMessages([...selected], "Those messages were not deleted.");
+  }
+
+  async function onDeleteAll() {
+    if (messages.length === 0) return;
+    if (!window.confirm("Delete all messages?")) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const res = await fetch("/api/ops/messages", { method: "DELETE" });
+      if (res.status === 401) {
+        window.location.replace("/ops");
+        return;
+      }
+      if (!res.ok) {
+        setNotice("The messages were not deleted.");
+        return;
+      }
+      setSelected(new Set());
+      await loadOps();
+    } catch {
+      setNotice("Network error.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteMessages(ids: number[], failure: string) {
+    setBusy(true);
+    setNotice(null);
+    try {
+      const res =
+        ids.length === 1
+          ? await fetch(`/api/ops/messages/${ids[0]}`, { method: "DELETE" })
+          : await fetch("/api/ops/messages", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ ids }),
+            });
+      if (res.status === 401) {
+        window.location.replace("/ops");
+        return;
+      }
+      if (!res.ok) {
+        setNotice(failure);
+        return;
+      }
+      setSelected((current) => {
+        const next = new Set(current);
+        for (const id of ids) next.delete(id);
+        return next;
+      });
       await loadOps();
     } catch {
       setNotice("Network error.");
@@ -359,16 +440,51 @@ export function Ops() {
                     <button type="button" className="btn btn-ghost" onClick={() => loadOps()}>
                       Refresh
                     </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      disabled={busy || selected.size === 0}
+                      onClick={() => onDeleteSelected()}
+                    >
+                      Delete selected
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      disabled={busy || messages.length === 0}
+                      onClick={() => onDeleteAll()}
+                    >
+                      Delete all
+                    </button>
                   </div>
+                  {notice && <p className="ops-note">{notice}</p>}
                   {messages.length === 0 ? (
                     <p className="ops-note">No messages yet.</p>
                   ) : (
                     <ul className="message-list">
                       {messages.map((message) => (
                         <li key={message.id} className="message-card">
-                          <p className="message-meta">
-                            {message.created_at} · {message.name} · {message.email}
-                          </p>
+                          <div className="message-card-head">
+                            <label className="message-check">
+                              <input
+                                type="checkbox"
+                                checked={selected.has(message.id)}
+                                onChange={() => toggleMessage(message.id)}
+                                aria-label={`Select message from ${message.name}`}
+                              />
+                            </label>
+                            <p className="message-meta">
+                              {message.created_at} · {message.name} · {message.email}
+                            </p>
+                            <button
+                              type="button"
+                              className="btn btn-ghost"
+                              disabled={busy}
+                              onClick={() => onDeleteMessage(message.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
                           <p className="message-body">{message.message}</p>
                         </li>
                       ))}

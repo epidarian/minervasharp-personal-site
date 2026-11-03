@@ -14,9 +14,30 @@ const ERROR_TEXT: Record<string, string> = {
   invalid_message: "Please enter a message.",
   missing_token: "Please complete the verification.",
   verification_failed: "Verification failed. Please try again.",
-  send_failed: "The message could not be sent. Please try again later.",
+  store_failed: "The message could not be saved. Please try again later.",
   network: "Network error. Please try again.",
 };
+
+const USED_KEY = "contact-used";
+const COOLDOWN_MS = 10 * 60 * 1000;
+
+function visitAlreadyUsed(): boolean {
+  try {
+    const until = Number(sessionStorage.getItem(USED_KEY));
+    if (Number.isFinite(until) && until > Date.now()) return true;
+  } catch {
+    // sessionStorage can throw in private mode.
+  }
+  return document.cookie.split(";").some((part) => part.trim() === "contact_used=1");
+}
+
+function markVisitUsed(): void {
+  try {
+    sessionStorage.setItem(USED_KEY, String(Date.now() + COOLDOWN_MS));
+  } catch {
+    // The 10-minute cookie still blocks another submit.
+  }
+}
 
 export interface ContactFormProps {
   onStatusChange?: (status: ContactStatus) => void;
@@ -24,7 +45,9 @@ export interface ContactFormProps {
 
 export function ContactForm({ onStatusChange }: ContactFormProps) {
   const { containerRef, token, ready, reset } = useTurnstile(SITEKEY);
-  const [status, setStatus] = useState<ContactStatus>("idle");
+  const [status, setStatus] = useState<ContactStatus>(() =>
+    visitAlreadyUsed() ? "sent" : "idle",
+  );
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -65,11 +88,16 @@ export function ContactForm({ onStatusChange }: ContactFormProps) {
         error?: string;
       };
       if (res.ok && body.ok) {
+        markVisitUsed();
         setStatus("sent");
         form.reset();
         reset();
+      } else if (body.error === "already_sent") {
+        markVisitUsed();
+        setStatus("sent");
+        reset();
       } else {
-        setError(ERROR_TEXT[body.error ?? ""] ?? ERROR_TEXT.send_failed);
+        setError(ERROR_TEXT[body.error ?? ""] ?? ERROR_TEXT.store_failed);
         setStatus("error");
         reset();
       }
@@ -83,15 +111,8 @@ export function ContactForm({ onStatusChange }: ContactFormProps) {
   if (status === "sent") {
     return (
       <div className="contact-done" role="status">
-        <p className="contact-done-title">Message sent.</p>
+        <p className="contact-done-title">Message received.</p>
         <p>Thank you. I will be in touch.</p>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          onClick={() => setStatus("idle")}
-        >
-          Send another
-        </button>
       </div>
     );
   }
